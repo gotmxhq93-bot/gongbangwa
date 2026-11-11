@@ -1,9 +1,16 @@
 
 import 'package:flutter/material.dart';
+
+import 'favorites_store.dart';
 import 'screens/search_screen.dart';
 import 'screens/favorites_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 앱 실행 전에 저장된 찜 목록 불러오기
+  await FavoritesStore.loadFavorites();
+
   runApp(const GongbangwaApp());
 }
 
