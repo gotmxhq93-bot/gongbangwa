@@ -10,7 +10,29 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   String selectedCategory = '전체';
+  String selectedRegion = '전체';
   String searchText = '';
+
+  final List<String> regions = [
+    '전체',
+    '서울',
+    '경기',
+    '인천',
+    '부산',
+    '대구',
+    '대전',
+    '광주',
+    '울산',
+    '세종',
+    '강원',
+    '충북',
+    '충남',
+    '전북',
+    '전남',
+    '경북',
+    '경남',
+    '제주',
+  ];
 
   final List<String> categories = [
     '전체',
@@ -73,6 +95,30 @@ class _SearchScreenState extends State<SearchScreen> {
       'price': 55000,
       'icon': '💍',
     },
+    {
+      'name': '제주 감성 도자기',
+      'category': '🏺 도자기·공예',
+      'location': '제주 제주시',
+      'className': '제주 바다 머그컵 만들기',
+      'price': 38000,
+      'icon': '🏺',
+    },
+    {
+      'name': '부산 바다 캔들',
+      'category': '🕯️ 캔들·방향제',
+      'location': '부산 해운대',
+      'className': '바다 향 캔들 만들기',
+      'price': 32000,
+      'icon': '🕯️',
+    },
+    {
+      'name': '경기 숲속 목공방',
+      'category': '👜 가죽·목공',
+      'location': '경기 수원',
+      'className': '원목 도마 만들기',
+      'price': 45000,
+      'icon': '🪵',
+    },
   ];
 
   @override
@@ -82,13 +128,17 @@ class _SearchScreenState extends State<SearchScreen> {
           selectedCategory == '전체' ||
           workshop['category'] == selectedCategory;
 
+      final matchesRegion =
+          selectedRegion == '전체' ||
+          workshop['location'].toString().startsWith(selectedRegion);
+
       final keyword = searchText.trim().toLowerCase();
 
       final matchesSearch =
           workshop['name'].toString().toLowerCase().contains(keyword) ||
           workshop['className'].toString().toLowerCase().contains(keyword);
 
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesRegion && matchesSearch;
     }).toList();
 
     return ListView(
@@ -122,6 +172,34 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
 
         const SizedBox(height: 24),
+
+        const Text(
+          '지역 선택 📍',
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: regions.map((region) {
+            return ChoiceChip(
+              label: Text(region),
+              selected: selectedRegion == region,
+              onSelected: (_) {
+                setState(() {
+                  selectedRegion = region;
+                });
+              },
+            );
+          }).toList(),
+        ),
+
+        const SizedBox(height: 24),
+
         const Text(
           '카테고리',
           style: TextStyle(
