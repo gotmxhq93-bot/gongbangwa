@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'screens/search_screen.dart';
 
 void main() {
   runApp(const GongbangwaApp());
@@ -37,11 +38,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> pages = const [
     HomePage(),
-    SimplePage(
-      title: '공방 찾기',
-      description: '원하는 공방과 클래스를 찾아보세요!',
-      icon: Icons.search,
-    ),
+    SearchScreen(),
     SimplePage(
       title: '같이 가요',
       description: '함께 원데이 클래스를 갈 친구를 찾아보세요!',
