@@ -9,32 +9,18 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  String selectedCategory = '전체';
   String selectedRegion = '전체';
+  String selectedCategory = '전체';
+  String selectedPrice = '전체 가격';
   String searchText = '';
 
-  final List<String> regions = [
-    '전체',
-    '서울',
-    '경기',
-    '인천',
-    '부산',
-    '대구',
-    '대전',
-    '광주',
-    '울산',
-    '세종',
-    '강원',
-    '충북',
-    '충남',
-    '전북',
-    '전남',
-    '경북',
-    '경남',
-    '제주',
+  final regions = [
+    '전체', '서울', '경기', '인천', '부산', '대구',
+    '대전', '광주', '울산', '세종', '강원', '충북',
+    '충남', '전북', '전남', '경북', '경남', '제주',
   ];
 
-  final List<String> categories = [
+  final categories = [
     '전체',
     '🏺 도자기·공예',
     '🧴 향수·뷰티',
@@ -52,6 +38,13 @@ class _SearchScreenState extends State<SearchScreen> {
     '🍳 요리·푸드크래프트',
     '🏠 인테리어·홈데코',
     '🐾 반려동물·펫크래프트',
+  ];
+
+  final prices = [
+    '전체 가격',
+    '3만 원 이하',
+    '3만~5만 원',
+    '5만 원 이상',
   ];
 
   final List<Map<String, dynamic>> workshops = [
@@ -121,24 +114,58 @@ class _SearchScreenState extends State<SearchScreen> {
     },
   ];
 
+  bool matchesPrice(int price) {
+    switch (selectedPrice) {
+      case '3만 원 이하':
+        return price <= 30000;
+      case '3만~5만 원':
+        return price > 30000 && price < 50000;
+      case '5만 원 이상':
+        return price >= 50000;
+      default:
+        return true;
+    }
+  }
+
+  Widget buildChips(
+    List<String> options,
+    String selected,
+    ValueChanged<String> onSelect,
+  ) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: options.map((option) {
+        return ChoiceChip(
+          label: Text(option),
+          selected: selected == option,
+          onSelected: (_) => onSelect(option),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filteredWorkshops = workshops.where((workshop) {
-      final matchesCategory =
-          selectedCategory == '전체' ||
-          workshop['category'] == selectedCategory;
+    final keyword = searchText.trim().toLowerCase();
 
-      final matchesRegion =
-          selectedRegion == '전체' ||
+    final filteredWorkshops = workshops.where((workshop) {
+      final matchesRegion = selectedRegion == '전체' ||
           workshop['location'].toString().startsWith(selectedRegion);
 
-      final keyword = searchText.trim().toLowerCase();
+      final matchesCategory = selectedCategory == '전체' ||
+          workshop['category'] == selectedCategory;
 
       final matchesSearch =
           workshop['name'].toString().toLowerCase().contains(keyword) ||
           workshop['className'].toString().toLowerCase().contains(keyword);
 
-      return matchesCategory && matchesRegion && matchesSearch;
+      final price = workshop['price'] as int;
+
+      return matchesRegion &&
+          matchesCategory &&
+          matchesSearch &&
+          matchesPrice(price);
     }).toList();
 
     return ListView(
@@ -152,12 +179,9 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 20),
-
         TextField(
           onChanged: (value) {
-            setState(() {
-              searchText = value;
-            });
+            setState(() => searchText = value);
           },
           decoration: InputDecoration(
             hintText: '공방명, 클래스명 검색',
@@ -170,9 +194,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
         ),
-
         const SizedBox(height: 24),
-
         const Text(
           '지역 선택 📍',
           style: TextStyle(
@@ -181,25 +203,12 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: regions.map((region) {
-            return ChoiceChip(
-              label: Text(region),
-              selected: selectedRegion == region,
-              onSelected: (_) {
-                setState(() {
-                  selectedRegion = region;
-                });
-              },
-            );
-          }).toList(),
+        buildChips(
+          regions,
+          selectedRegion,
+          (value) => setState(() => selectedRegion = value),
         ),
-
         const SizedBox(height: 24),
-
         const Text(
           '카테고리',
           style: TextStyle(
@@ -208,25 +217,26 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: categories.map((category) {
-            return ChoiceChip(
-              label: Text(category),
-              selected: selectedCategory == category,
-              onSelected: (_) {
-                setState(() {
-                  selectedCategory = category;
-                });
-              },
-            );
-          }).toList(),
+        buildChips(
+          categories,
+          selectedCategory,
+          (value) => setState(() => selectedCategory = value),
         ),
-
+        const SizedBox(height: 24),
+        const Text(
+          '가격대 💰',
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        buildChips(
+          prices,
+          selectedPrice,
+          (value) => setState(() => selectedPrice = value),
+        ),
         const SizedBox(height: 28),
-
         Text(
           '공방 목록 (${filteredWorkshops.length}개)',
           style: const TextStyle(
@@ -235,7 +245,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 14),
-
         if (filteredWorkshops.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 30),
@@ -243,7 +252,6 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Text('검색 결과가 없어요 🥲'),
             ),
           ),
-
         ...filteredWorkshops.map((workshop) {
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
@@ -265,7 +273,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Text(
-                      workshop['icon'],
+                      workshop['icon'] as String,
                       style: const TextStyle(fontSize: 32),
                     ),
                   ),
@@ -275,7 +283,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          workshop['name'],
+                          workshop['name'] as String,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -290,7 +298,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Text(workshop['className']),
+                        Text(workshop['className'] as String),
                         const SizedBox(height: 6),
                         Text(
                           '${workshop['price']}원',
