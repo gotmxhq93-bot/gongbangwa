@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'workshop_detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -145,6 +146,17 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void openWorkshopDetail(Map<String, dynamic> workshop) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WorkshopDetailScreen(
+          workshop: workshop,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final keyword = searchText.trim().toLowerCase();
@@ -179,6 +191,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 20),
+
         TextField(
           onChanged: (value) {
             setState(() => searchText = value);
@@ -194,7 +207,9 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
         ),
+
         const SizedBox(height: 24),
+
         const Text(
           '지역 선택 📍',
           style: TextStyle(
@@ -203,12 +218,15 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
+
         buildChips(
           regions,
           selectedRegion,
           (value) => setState(() => selectedRegion = value),
         ),
+
         const SizedBox(height: 24),
+
         const Text(
           '카테고리',
           style: TextStyle(
@@ -217,12 +235,15 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
+
         buildChips(
           categories,
           selectedCategory,
           (value) => setState(() => selectedCategory = value),
         ),
+
         const SizedBox(height: 24),
+
         const Text(
           '가격대 💰',
           style: TextStyle(
@@ -231,12 +252,15 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
+
         buildChips(
           prices,
           selectedPrice,
           (value) => setState(() => selectedPrice = value),
         ),
+
         const SizedBox(height: 28),
+
         Text(
           '공방 목록 (${filteredWorkshops.length}개)',
           style: const TextStyle(
@@ -245,6 +269,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 14),
+
         if (filteredWorkshops.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 30),
@@ -252,6 +277,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Text('검색 결과가 없어요 🥲'),
             ),
           ),
+
         ...filteredWorkshops.map((workshop) {
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
@@ -260,57 +286,65 @@ class _SearchScreenState extends State<SearchScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEAF4FF),
-                      borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => openWorkshopDetail(workshop),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEAF4FF),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        workshop['icon'] as String,
+                        style: const TextStyle(fontSize: 32),
+                      ),
                     ),
-                    child: Text(
-                      workshop['icon'] as String,
-                      style: const TextStyle(fontSize: 32),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            workshop['name'] as String,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${workshop['category']} · ${workshop['location']}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(workshop['className'] as String),
+                          const SizedBox(height: 6),
+                          Text(
+                            '${workshop['price']}원',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2478D4),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          workshop['name'] as String,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${workshop['category']} · ${workshop['location']}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(workshop['className'] as String),
-                        const SizedBox(height: 6),
-                        Text(
-                          '${workshop['price']}원',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2478D4),
-                          ),
-                        ),
-                      ],
+                    const Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
