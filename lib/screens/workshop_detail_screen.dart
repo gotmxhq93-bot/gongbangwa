@@ -1,7 +1,8 @@
 
 import 'package:flutter/material.dart';
+import '../favorites_store.dart';
 
-class WorkshopDetailScreen extends StatefulWidget {
+class WorkshopDetailScreen extends StatelessWidget {
   final Map<String, dynamic> workshop;
 
   const WorkshopDetailScreen({
@@ -10,16 +11,7 @@ class WorkshopDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<WorkshopDetailScreen> createState() =>
-      _WorkshopDetailScreenState();
-}
-
-class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
-  bool isFavorite = false;
-
-  @override
   Widget build(BuildContext context) {
-    final workshop = widget.workshop;
     final name = workshop['name'] as String;
     final category = workshop['category'] as String;
     final location = workshop['location'] as String;
@@ -28,35 +20,42 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
     final emoji = workshop['icon'] as String;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FBFF),
       appBar: AppBar(
         title: const Text('공방 상세'),
         backgroundColor: Colors.white,
         actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                isFavorite = !isFavorite;
-              });
+          ValueListenableBuilder<List<Map<String, dynamic>>>(
+            valueListenable: FavoritesStore.favorites,
+            builder: (context, favorites, child) {
+              final isFavorite = FavoritesStore.isFavorite(name);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    isFavorite
-                        ? '찜 목록에 추가했어요 ❤️'
-                        : '찜을 해제했어요',
-                  ),
-                  duration: const Duration(seconds: 1),
+              return IconButton(
+                icon: Icon(
+                  isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : Colors.grey,
                 ),
+                onPressed: () {
+                  FavoritesStore.toggleFavorite(workshop);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isFavorite
+                            ? '찜을 해제했어요'
+                            : '찜 목록에 추가했어요 ❤️',
+                      ),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
               );
             },
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.red : Colors.grey,
-            ),
           ),
         ],
       ),
-      backgroundColor: const Color(0xFFF8FBFF),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -123,7 +122,7 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
           const SizedBox(height: 10),
 
           Text(
-            '${price.toString()}원',
+            '$price원',
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -138,7 +137,9 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('예약 기능은 곧 연결할 예정이에요! 📅'),
+                    content: Text(
+                      '예약 기능은 곧 연결할 예정이에요! 📅',
+                    ),
                   ),
                 );
               },

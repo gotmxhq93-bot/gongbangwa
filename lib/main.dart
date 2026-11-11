@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'screens/search_screen.dart';
+import 'screens/favorites_screen.dart';
 
 void main() {
   runApp(const GongbangwaApp());
@@ -44,11 +45,7 @@ class _MainScreenState extends State<MainScreen> {
       description: '함께 원데이 클래스를 갈 친구를 찾아보세요!',
       icon: Icons.groups_outlined,
     ),
-    SimplePage(
-      title: '찜',
-      description: '마음에 드는 공방을 모아보세요!',
-      icon: Icons.favorite_border,
-    ),
+    FavoritesScreen(),
     SimplePage(
       title: '마이페이지',
       description: '내 예약과 계정 정보를 확인해 보세요!',
